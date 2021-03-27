@@ -13,7 +13,7 @@ int main()
   Window window("Demo game", Size(800, 600));
   Graphics gfx(window);
   // Game Data
-  Map gameMap(16);
+  Map gameMap(32);
   gameMap.loadLvL1();
   // Player
   Position2D playerPos(1.0f, 1.0f);
@@ -30,10 +30,9 @@ int main()
     playerVel.x = 0.0f;
     playerVel.y = 0.0f;
     // pixels to cartesian distance
-    float value = 0.009f;
     Position2D pixelDistance(
-        1.6f / window.screen.width * gameMap.tileSize,
-        1.6f / window.screen.height * gameMap.tileSize);
+        2.0f / window.screen.width * gameMap.tileSize,
+        2.0f / window.screen.height * gameMap.tileSize);
     // Handle Input
     if (window.hasFocus)
     {
