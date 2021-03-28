@@ -1,6 +1,7 @@
 // Default
 #include <iostream>
 #include <array>
+#include <math.h> // fabs
 // Engine
 #include "Engine/Window.h"
 #include "Engine/Graphics.h"
@@ -17,7 +18,7 @@ int main()
   // initial data
   Map gameMap;
   Position2D screenOffset(0.0f, 0.0f);
-  float zoom = 0.1f;
+  double tileSizeY = 0.1;
   // Player
   Player player(Position2D(3.0f, 5.0f));
   // Camera
@@ -27,12 +28,8 @@ int main()
   // onUpdate
   while (window.isOpen())
   {
-    float timeElapsed = timer.elapsed();
-    float tileSizeY = zoom;
-    float tileSizeX = zoom / window.screenProportion;
-    // Stop player
-    player.velocity.x = 0.0f;
-    player.velocity.y = 0.0f;
+    float elapsedTime = timer.elapsed();
+    float tileSizeX = tileSizeY / window.screenProportion;
     /* Handle Input
     ----------------*/
     // Player movement
@@ -55,9 +52,18 @@ int main()
         player.velocity.x = -6.0f;
       }
     }
+    // Gravity
+    player.velocity.y += 20.0f * elapsedTime;
     Position2D newPlayerPos(
-        player.position.x + player.velocity.x * timeElapsed,
-        player.position.y + player.velocity.y * timeElapsed);
+        player.position.x + player.velocity.x * elapsedTime,
+        player.position.y + player.velocity.y * elapsedTime);
+    // Drag
+    if (player.isOnGround)
+    {
+      player.velocity.x += -3.0f * player.velocity.x * elapsedTime;
+      if (player.velocity.x < 0.01f)
+        player.velocity.x = 0.0f;
+    }
     /* Collision
     -------------*/
     // Horizontal Collision
@@ -115,8 +121,8 @@ int main()
     cameraPos.x = player.position.x;
     cameraPos.y = player.position.y;
     // Calculate Top-Leftmost visible tile
-    screenOffset.x = cameraPos.x * tileSizeX - tileSizeX * 1 / tileSizeX;
-    screenOffset.y = cameraPos.y * tileSizeY - tileSizeY * 1 / tileSizeY;
+    screenOffset.x = cameraPos.x * tileSizeX - 1;
+    screenOffset.y = cameraPos.y * tileSizeY - 1;
     // Stop camera in map limit
     float maxOffsetX = gameMap.current[0].size() * tileSizeX - 2;
     if (screenOffset.x < 0)
@@ -132,8 +138,7 @@ int main()
     /* Draw Map
     ------------*/
     float tilesOffsetY = screenOffset.y / tileSizeY;
-    float tilesTopHalf = (tilesOffsetY - (int)tilesOffsetY) * tileSizeY;
-
+    float tilesTopHalf = tileSizeY * (tilesOffsetY - (int)tilesOffsetY);
     float tilesOffsetX = screenOffset.x / tileSizeX;
     float tilesLeftHalf = (tilesOffsetX - (int)tilesOffsetX) * tileSizeX;
 
@@ -156,7 +161,7 @@ int main()
             fY,
             gameMap.getTileColor(tileX++, tilesOffsetY));
         x += tileSizeX;
-      } while (x < 0.9f);
+      } while (x < 1.0 - tileSizeX);
       gfx.rectangle(
           x,
           1.0f,
@@ -165,14 +170,15 @@ int main()
           gameMap.getTileColor(tileX++, tilesOffsetY++));
     };
     // Draw upside consider Y offset
-    float y = 1.0f;
-    drawXTiles(y, tileSizeY - tilesTopHalf);
+    float y = 1.0;
+    drawXTiles(y, y - tileSizeY - tilesTopHalf);
     y -= tileSizeY - tilesTopHalf;
-    do
-    { // Draw Between Up and Down Consider just X Offset
+    for (unsigned short i = 2.0f / tileSizeY - 2; i != 0; i--)
+    {
+      // Draw Between Up and Down Consider just X Offset
       drawXTiles(y, y - tileSizeY);
       y -= tileSizeY;
-    } while (y > -0.9f);
+    }
     // Draw downside consider Y offset
     drawXTiles(y, -1.0f);
     /* Draw player

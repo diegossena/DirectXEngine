@@ -92,6 +92,6 @@ namespace KeyBoard
 {
   static bool isKeyPressed(Key key)
   {
-    return GetAsyncKeyState(key) != 0;
+    return (GetAsyncKeyState(key) & 0x8000) != 0;
   }
 };

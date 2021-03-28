@@ -124,12 +124,6 @@ public:
       TranslateMessage(&msg);
       DispatchMessage(&msg);
 
-      switch (msg.message)
-      {
-      case WM_SIZE:
-        std::cout << true << '\n';
-      }
-
       if (msg.message == WM_QUIT)
         return false;
     }
