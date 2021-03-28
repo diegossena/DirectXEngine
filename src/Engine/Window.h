@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include <string>
-#include "Engine/Utils/Size.h"
+#include "Engine/Window/Size.h"
 
 #include <iostream>
 // (const char *windowName, Size screen, HINSTANCE hInstance, int nCmdShow)
@@ -12,13 +12,15 @@ private:
   // Props
   bool oIsOpen = true;
   bool oHasFocus = true;
+  float oScreenProportion;
   Size oScreen;
   HWND oHWnd;
   // Window Events
-  void onResize(unsigned short width, unsigned short height)
+  void onResize(unsigned short &width, unsigned short &height)
   {
     Window::oScreen.width = width;
     Window::oScreen.height = height;
+    Window::oScreenProportion = (float)width / height;
   }
   void onFocus(bool hasFocus)
   {
@@ -80,8 +82,9 @@ public:
   const Size &screen = oScreen;
   const HWND &hWnd = oHWnd;
   const bool &hasFocus = oHasFocus;
+  const float &screenProportion = oScreenProportion;
   // Constructor
-  Window(const char *windowName, Size screen) : oScreen(screen)
+  Window(const char *windowName, Size screen) : oScreen(screen), oScreenProportion(screen.width / screen.height)
   {
     Window::oScreen.width = 800;
     WNDCLASSEX wc = {};

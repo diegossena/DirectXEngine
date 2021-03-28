@@ -12,6 +12,7 @@
 class Graphics
 {
 private:
+  Window window;
   // Props
   IDXGISwapChain *swapchain;
   ID3D11Device *dev;
@@ -65,7 +66,7 @@ private:
   }
 
 public:
-  Graphics(const Window &window)
+  Graphics(const Window &window_) : window(window_)
   {
     // create a struct to hold information about the swap chain
     DXGI_SWAP_CHAIN_DESC scd;
@@ -76,10 +77,10 @@ public:
     // fill the swap chain description struct
     scd.BufferCount = 1;                                // one back buffer
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // use 32-bit color
-    scd.BufferDesc.Width = window.screen.width;         // set the back buffer width
-    scd.BufferDesc.Height = window.screen.height;       // set the back buffer height
+    scd.BufferDesc.Width = window_.screen.width;        // set the back buffer width
+    scd.BufferDesc.Height = window_.screen.height;      // set the back buffer height
     scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;  // how swap chain is to be used
-    scd.OutputWindow = window.hWnd;                     // the window to be used
+    scd.OutputWindow = window_.hWnd;                    // the window to be used
     scd.SampleDesc.Count = 4;                           // how many multisamples
     scd.Windowed = TRUE;                                // windowed/full-screen mode
     scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // allow full-screen switching
@@ -115,8 +116,8 @@ public:
 
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = window.screen.width;
-    viewport.Height = window.screen.height;
+    viewport.Width = window_.screen.width;
+    viewport.Height = window_.screen.height;
 
     devcon->RSSetViewports(1, &viewport);
 
@@ -223,8 +224,25 @@ public:
         {Position3D(x2, y2, 0.0f), color},
         {Position3D(x1, y2, 0.0f), color});
   }
-  void square(Position2D &position, Position2D &distance, const RGBA &color)
+  void rectangle(Position2D &position, Position2D &distance, const RGBA &color)
   {
-    rectangle(position.x, position.x + distance.x, position.y, position.y - distance.y, color);
+    rectangle(
+        position.x,
+        position.x + distance.x,
+        position.y,
+        position.y - distance.y,
+        color);
+  }
+  void rectangle(Position2D position, Position2D distance, const RGBA color)
+  {
+    rectangle(
+        position.x,
+        position.x + distance.x,
+        position.y,
+        position.y - distance.y,
+        color);
+  }
+  void render2DTiles() {
+    
   }
 };
